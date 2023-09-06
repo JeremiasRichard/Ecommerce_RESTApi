@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "uYW3STryqgDofMJjgP0dkexnVylZws46+ICamzzL1nM=",
+  "Source": "EcommerceRESTApi",
+  "BasePath": "_content/EcommerceRESTApi",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
