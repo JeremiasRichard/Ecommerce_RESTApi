@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "2gjwpIXXxDGlaJnnqReaeuvoaxhJY28hhZZXtfpfkBt6ZjWNwd3unAHD11QPV0X9VUHL+qLLuXlsiFxR6ZHvOQ==",
+  "dgSpecHash": "ZiJdaxR7udNfE7Z60YxcLGt5Ulw7ZLl9R4tgV/uKpo/VG3G/9CH++gcfGbKifpOja2TF0+YgQjDW9jSaQMK/ww==",
   "success": true,
-  "projectFilePath": "C:\\Users\\mides\\OneDrive\\Escritorio\\Nueva carpeta\\RemitoApi\\EcommerceRESTApi\\EcommerceRESTApi.csproj",
+  "projectFilePath": "C:\\Users\\mides\\OneDrive\\Escritorio\\Nueva carpeta\\EcommerceRESTApi\\EcommerceRESTApi\\EcommerceRESTApi.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\mides\\.nuget\\packages\\automapper\\12.0.1\\automapper.12.0.1.nupkg.sha512",
     "C:\\Users\\mides\\.nuget\\packages\\automapper.extensions.microsoft.dependencyinjection\\12.0.1\\automapper.extensions.microsoft.dependencyinjection.12.0.1.nupkg.sha512",

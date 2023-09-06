@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\mides\\OneDrive\\Escritorio\\Nueva carpeta\\RemitoApi\\EcommerceRESTApi\\EcommerceRESTApi.csproj": {}
+    "C:\\Users\\mides\\OneDrive\\Escritorio\\Nueva carpeta\\EcommerceRESTApi\\EcommerceRESTApi\\EcommerceRESTApi.csproj": {}
   },
   "projects": {
-    "C:\\Users\\mides\\OneDrive\\Escritorio\\Nueva carpeta\\RemitoApi\\EcommerceRESTApi\\EcommerceRESTApi.csproj": {
+    "C:\\Users\\mides\\OneDrive\\Escritorio\\Nueva carpeta\\EcommerceRESTApi\\EcommerceRESTApi\\EcommerceRESTApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\mides\\OneDrive\\Escritorio\\Nueva carpeta\\RemitoApi\\EcommerceRESTApi\\EcommerceRESTApi.csproj",
+        "projectUniqueName": "C:\\Users\\mides\\OneDrive\\Escritorio\\Nueva carpeta\\EcommerceRESTApi\\EcommerceRESTApi\\EcommerceRESTApi.csproj",
         "projectName": "EcommerceRESTApi",
-        "projectPath": "C:\\Users\\mides\\OneDrive\\Escritorio\\Nueva carpeta\\RemitoApi\\EcommerceRESTApi\\EcommerceRESTApi.csproj",
+        "projectPath": "C:\\Users\\mides\\OneDrive\\Escritorio\\Nueva carpeta\\EcommerceRESTApi\\EcommerceRESTApi\\EcommerceRESTApi.csproj",
         "packagesPath": "C:\\Users\\mides\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\mides\\OneDrive\\Escritorio\\Nueva carpeta\\RemitoApi\\EcommerceRESTApi\\obj\\",
+        "outputPath": "C:\\Users\\mides\\OneDrive\\Escritorio\\Nueva carpeta\\EcommerceRESTApi\\EcommerceRESTApi\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\mides\\AppData\\Roaming\\NuGet\\NuGet.Config",
