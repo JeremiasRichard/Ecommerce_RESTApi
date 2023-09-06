@@ -1,55 +1,35 @@
-﻿using RemitoApi.DataBase;
+﻿using Microsoft.EntityFrameworkCore;
+using RemitoApi.DataBase;
 using RemitoApi.Entities;
 using RemitoApi.Interfaces;
 
 namespace RemitoApi.Repositories
 {
-    public class ProductOriginRepository : IProductOrigin
+    public class ProductOriginRepository : GenericRepository<ProductOrigin, int>, IProductOriginRepository
     {
-        private readonly ApplicationDbContext _dbContext;
+        private readonly ApplicationDbContext _context;
 
-        public ProductOriginRepository(ApplicationDbContext dbContext)
+        public ProductOriginRepository(ApplicationDbContext context) : base(context)
         {
-            _dbContext = dbContext;
+            _context = context;
         }
 
-        public bool Create(ProductOrigin productOrigin)
+        public override IQueryable<ProductOrigin> GetAll()
         {
-            _dbContext.Add(productOrigin);
-            return Save();
+            return _context.ProductOrigins
+                .Include(p => p.Products)
+                .ThenInclude(c => c.Category)
+                .AsQueryable();
         }
 
-        public bool Exist(int id)
+        public override ProductOrigin GetById(int id)
         {
-            return _dbContext.ProductOrigins.Any(p => p.Id == id);
+            return _context.ProductOrigins.Where(x => x.Id == id).FirstOrDefault();
         }
 
-        public ICollection<ProductOrigin> GetAll()
+        public override bool Exist(int id)
         {
-            return _dbContext.ProductOrigins.ToList();
-        }
-
-        public ProductOrigin GetById(int id)
-        {
-            return _dbContext.ProductOrigins.Where(x => x.Id == id).FirstOrDefault();
-        }
-
-        public bool Remove(ProductOrigin productOrigin)
-        {
-            _dbContext.Remove(productOrigin);
-            return Save();
-        }
-
-        public bool Save()
-        {
-            var saved = _dbContext.SaveChanges();
-            return saved > 0;
-        }
-
-        public bool Update(ProductOrigin productOrigin)
-        {
-            _dbContext.Update(productOrigin);
-            return Save();
+            return _context.ProductOrigins.Any(x => x.Id == id);
         }
     }
 }

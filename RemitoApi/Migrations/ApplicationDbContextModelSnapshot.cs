@@ -228,31 +228,12 @@ namespace RemitoApi.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int>("CategoryTypeId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CategoryTypeId");
-
-                    b.ToTable("Categories");
-                });
-
-            modelBuilder.Entity("RemitoApi.Entities.CategoryType", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("CategoryTypes");
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("RemitoApi.Entities.Product", b =>
@@ -274,8 +255,8 @@ namespace RemitoApi.Migrations
 
                     b.Property<string>("ProductName")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<int>("ProductOriginId")
                         .HasColumnType("int");
@@ -330,6 +311,60 @@ namespace RemitoApi.Migrations
                     b.ToTable("ProductTypes");
                 });
 
+            modelBuilder.Entity("RemitoApi.Models.DeliveryNote", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsOpen")
+                        .HasColumnType("bit");
+
+                    b.Property<double>("Total")
+                        .HasColumnType("float");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DeliveryNotes");
+                });
+
+            modelBuilder.Entity("RemitoApi.Models.Items", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("DeliveryNoteId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<double>("SubTotal")
+                        .HasColumnType("float");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeliveryNoteId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("Items");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -381,17 +416,6 @@ namespace RemitoApi.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("RemitoApi.Entities.Category", b =>
-                {
-                    b.HasOne("RemitoApi.Entities.CategoryType", "CategoryType")
-                        .WithMany()
-                        .HasForeignKey("CategoryTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CategoryType");
-                });
-
             modelBuilder.Entity("RemitoApi.Entities.Product", b =>
                 {
                     b.HasOne("RemitoApi.Entities.Category", "Category")
@@ -401,13 +425,13 @@ namespace RemitoApi.Migrations
                         .IsRequired();
 
                     b.HasOne("RemitoApi.Entities.ProductOrigin", "ProductOrigin")
-                        .WithMany()
+                        .WithMany("Products")
                         .HasForeignKey("ProductOriginId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("RemitoApi.Entities.ProductType", "ProductType")
-                        .WithMany()
+                        .WithMany("Products")
                         .HasForeignKey("ProductTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -419,9 +443,48 @@ namespace RemitoApi.Migrations
                     b.Navigation("ProductType");
                 });
 
+            modelBuilder.Entity("RemitoApi.Models.Items", b =>
+                {
+                    b.HasOne("RemitoApi.Models.DeliveryNote", "DeliveryNote")
+                        .WithMany("ItemsProducts")
+                        .HasForeignKey("DeliveryNoteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RemitoApi.Entities.Product", "Product")
+                        .WithMany("Items")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DeliveryNote");
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("RemitoApi.Entities.Category", b =>
                 {
                     b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("RemitoApi.Entities.Product", b =>
+                {
+                    b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("RemitoApi.Entities.ProductOrigin", b =>
+                {
+                    b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("RemitoApi.Entities.ProductType", b =>
+                {
+                    b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("RemitoApi.Models.DeliveryNote", b =>
+                {
+                    b.Navigation("ItemsProducts");
                 });
 #pragma warning restore 612, 618
         }

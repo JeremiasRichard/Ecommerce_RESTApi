@@ -1,54 +1,38 @@
-﻿using RemitoApi.DataBase;
+﻿using Microsoft.EntityFrameworkCore;
+using RemitoApi.DataBase;
 using RemitoApi.Entities;
 using RemitoApi.Interfaces;
 
 namespace RemitoApi.Repositories
 {
-    public class ProductTypeRepository : IProductType
+    public class ProductTypeRepository : GenericRepository<ProductType, int>, IProductTypeRepository
     {
-        private readonly ApplicationDbContext _dbContext;
+        private readonly ApplicationDbContext _context;
 
-        public ProductTypeRepository(ApplicationDbContext dbContext)
+        public ProductTypeRepository(ApplicationDbContext context) : base(context)
         {
-            _dbContext = dbContext;
+            _context = context;
         }
 
-        public bool Create(ProductType productType)
+        public override bool Exist(int id)
         {
-            _dbContext.Add(productType);
-            return Save();
+            return _context.ProductTypes.Any(p => p.Id == id);
         }
 
-        public bool Exist(int id)
+        public override IQueryable<ProductType> GetAll()
         {
-          return  _dbContext.ProductTypes.Any(p => p.Id == id);
+            return _context.ProductTypes
+                .Include(c => c.Products)
+                .ThenInclude(c => c.ProductOrigin)
+                .Include(c => c.Products)
+                .ThenInclude(c => c.Category)
+                .AsQueryable();
         }
 
-        public ICollection<ProductType> GetAll()
+        public override ProductType GetById(int id)
         {
-            return _dbContext.ProductTypes.ToList();
-        }
-
-        public ProductType GetById(int id)
-        {
-          return  _dbContext.ProductTypes.Where(x => x.Id == id).FirstOrDefault();
-        }
-
-        public bool Remove(ProductType productType)
-        {
-            _dbContext.Remove(productType);
-            return Save();
-        }
-
-        public bool Save()
-        {
-           var saved = _dbContext.SaveChanges();
-           return saved > 0;
-        }
-
-        public bool Update(ProductType productType)
-        {
-            throw new NotImplementedException();
+            return _context.ProductTypes.Where(x => x.Id == id)
+                    .FirstOrDefault();
         }
     }
 }

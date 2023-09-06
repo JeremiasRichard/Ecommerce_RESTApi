@@ -2,90 +2,82 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using RemitoApi.DataBase;
 using RemitoApi.DTOs;
 using RemitoApi.Entities;
+using RemitoApi.Helpers;
 using RemitoApi.Interfaces;
+using RemitoApi.Services;
+using RemitoApi.Validation;
+using System.Linq;
 
 namespace RemitoApi.Controllers
 {
     [ApiController]
-    [Route("Api/[Controller]")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-
+    [Route("Api/Product")]
+    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ProductController : Controller
     {
-        public readonly IProduct _productRepository;
-        public readonly IProductOrigin _productOriginRepository;
-        public readonly ICategory _categoryRepository;
+        private readonly ProductServiceImp _productService;
 
-        public readonly IMapper _mapper;
-
-        public ProductController(IProduct productRepository, IMapper mapper, ICategory categoryRepository)
+        public ProductController(ProductServiceImp productService)
         {
-            _productRepository = productRepository;
-            _mapper = mapper;
-            _categoryRepository = categoryRepository;
+            _productService = productService;
         }
 
         [HttpPost]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult CreateProduct([FromBody]ProductCreateDTO productCreate, [FromQuery] int originId,[FromQuery] int categoryId, [FromQuery] int productTypeId)
+        public IActionResult CreateProduct([FromBody] ProductCreateDTO productCreate)
         {
-
-            if (productCreate == null)
+            if (!ModelState.IsValid || !ValidationsForImputs.ValidateProduct(productCreate))
             {
-                ModelState.AddModelError("", "Valid Category Type field is required!");
-                return StatusCode(422, ModelState);
+                return BadRequest("Please check your imptus");
             }
 
-            var product = _productRepository.GetAll()
-                .Where(x => x.ProductName.Trim().ToLower() == productCreate.Name.TrimEnd().ToLower() && x.ProductOrigin.Id == productCreate.ProductOriginId)
-                .FirstOrDefault();
-
-            if (product != null)
-            {
-                ModelState.AddModelError("", "Product already exist!");
-                return StatusCode(422, ModelState);
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var category = _categoryRepository.GetById(categoryId);
-            
-            if (category == null)
-            {
-                ModelState.AddModelError("", "Category not found");
-                return StatusCode(404, ModelState);
-            }
-            var productMap = _mapper.Map<Product>(productCreate);
-            productMap.Category = category;
-         
-            if (!_productRepository.Create(productMap))
-            {
-                ModelState.AddModelError("", "Something went wrong while saving");
-                return StatusCode(500, ModelState);
-            }
-
-            return Ok("Succesfully created");
+            return Ok(_productService.CreateProduct(productCreate));
         }
 
 
         [HttpGet]
+        [Route("/Pagination")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<ProductToShowDTO>))]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme,Policy ="IsAdmin")]
-        public IActionResult GettAllProducts()
+        [ResponseCache(Duration = 10)] // cache por segundo
+        [AllowAnonymous]
+        public async Task<ActionResult<List<ProductToShowDTO>>> GettAllProducts([FromQuery] PaginationDTO paginationDTO)
         {
-            var products = _mapper.Map<List<ProductToShowDTO>>(_productRepository.GetAll());
+            var queryable = _productService.GetQueryable();
+            await HttpContext.InsertPaginationParametersInHeader(queryable, paginationDTO.Page, paginationDTO.RecordsPerPage);
 
-            if (!ModelState.IsValid)
+            return await _productService.GetAll(paginationDTO);
+        }
+
+        [HttpDelete]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult DeleteProduct(int productId)
+        {
+            if (!ValidationsForImputs.ValidateNumber(productId))
             {
-                return BadRequest(ModelState);
+                return BadRequest("Please insert a valid product Id");
             }
-            return Ok(products);
+
+            return Ok(_productService.DeleteProduct(productId));
+        }
+
+        [HttpPut]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        //[Authorize(Policy = "AdminPolicy")]
+        public ActionResult<ProductCreateDTO> UpdateProduct([FromBody] ProductCreateDTO product)
+        {
+            if (!ValidationsForImputs.ValidateNumber(product.ProductTypeId) || !ValidationsForImputs.ValidateNumber(product.ProductOriginId))
+            {
+                return BadRequest("Please insert a valid product Id");
+            }
+
+            return Ok(_productService.Update(product));
         }
     }
 }

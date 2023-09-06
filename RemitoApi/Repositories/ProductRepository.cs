@@ -1,61 +1,84 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using RemitoApi.DataBase;
 using RemitoApi.Entities;
 using RemitoApi.Interfaces;
 
 namespace RemitoApi.Repositories
 {
-    public class ProductRepository : IProduct
+    public class ProductRepository : GenericRepository<Product, int>, IProductRepository
     {
         private readonly ApplicationDbContext _dbContext;
+        private IDbContextTransaction _currentTransaction;
 
-        public ProductRepository(ApplicationDbContext dbContext)
+        public ProductRepository(ApplicationDbContext context) : base(context)
         {
-            _dbContext = dbContext;
+            _dbContext = context;
         }
 
-        public bool Create(Product product)
+        public override IQueryable<Product> GetAll()
         {
-            _dbContext.Add(product);
-            return Save();
+            return _dbContext.Products
+            .Include(c => c.ProductOrigin)
+            .Include(c => c.ProductType)
+            .Include(c => c.Category)
+            .AsQueryable();
         }
 
-        public bool Exist(int id)
+        public override bool Exist(int id)
         {
             return _dbContext.Products.Any(p => p.Id == id);
         }
 
-        public ICollection<Product> GetAll()
-        {
-            return _dbContext.Products
-                .Include(c => c.ProductOrigin)
-                .Include(c => c.ProductType)
-                .Include(c => c.Category)
-                .Include(c => c.Category.CategoryType)
-                .ToList();
-        }
-
-        public Product GetById(int id)
+        public override Product GetById(int id)
         {
             return _dbContext.Products.Where(x => x.Id == id).FirstOrDefault();
         }
 
-        public bool Remove(Product product)
+        public bool GetByNameOriginAndType(string productName, int originId, int typeId)
         {
-            _dbContext.Remove(product);
-            return Save();
+            return _dbContext.Products
+                 .Any(x => x.ProductName == productName && x.ProductTypeId == typeId && x.ProductOriginId == originId);
         }
 
-        public bool Save()
+        public IDbContextTransaction BeginTransaction()
         {
-            var saved = _dbContext.SaveChanges();
-            return saved > 0;
+            if (_currentTransaction == null)
+            {
+                return _currentTransaction = _dbContext.Database.BeginTransaction();
+            }
+            return _currentTransaction;
         }
 
-        public bool Update(Product product)
+        public void Commit()
         {
-            _dbContext.Update(product);
-            return Save();
+            try
+            {
+                _dbContext.SaveChanges();
+                _currentTransaction?.Commit();
+            }
+            catch
+            {
+                _currentTransaction?.Rollback();
+                throw;
+            }
+            finally
+            {
+                _currentTransaction?.Dispose();
+                _currentTransaction = null;
+            }
+        }
+        public void Rollback()
+        {
+            try
+            {
+                _currentTransaction?.Rollback();
+            }
+            finally
+            {
+                _currentTransaction?.Dispose();
+                _currentTransaction = null;
+            }
         }
     }
 }

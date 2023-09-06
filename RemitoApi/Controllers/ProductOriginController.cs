@@ -3,24 +3,27 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RemitoApi.DTOs;
+using RemitoApi.DTOs.Secutiry;
 using RemitoApi.Entities;
+using RemitoApi.Helpers;
 using RemitoApi.Interfaces;
+using RemitoApi.Repositories;
+using RemitoApi.Services;
+using RemitoApi.Validation;
 
 namespace RemitoApi.Controllers
 {
     [ApiController]
     [Route("Api/[Controller]")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 
     public class ProductOriginController : Controller
     {
-        private readonly IProductOrigin _productOriginRepository;
-        private readonly IMapper _mapper;
+        private readonly ProductOriginServiceImp _productOriginService;
 
-        public ProductOriginController(IProductOrigin productOrigin, IMapper mapper)
+        public ProductOriginController(ProductOriginServiceImp productOriginService)
         {
-            _productOriginRepository = productOrigin;
-            _mapper = mapper;
+            _productOriginService = productOriginService;
         }
 
         [HttpPost]
@@ -28,50 +31,54 @@ namespace RemitoApi.Controllers
         [ProducesResponseType(400)]
         public IActionResult CreateProductOrigin([FromBody] ProductOriginCreateDTO createDTO)
         {
-            if (createDTO == null)
+            if (!ModelState.IsValid || !ValidationsForImputs.ValidateString(createDTO.Name))
             {
                 ModelState.AddModelError("", "Name field is required!");
-                return StatusCode(422, ModelState);
+                return StatusCode(400, ModelState);
             }
 
-            var productType = _productOriginRepository.GetAll()
-                .Where(x => x.Name.Trim().ToUpper() == createDTO.Name.TrimEnd().ToUpper())
-                .FirstOrDefault();
+            var product = _productOriginService.CreateProductOrigin(createDTO);
 
-            if (productType != null)
+            if (product != null)
             {
-                ModelState.AddModelError("", "Product Origin already exist!");
-                return StatusCode(422, ModelState);
-
+                return Ok(createDTO);
             }
 
-            if (!ModelState.IsValid)
+            return BadRequest();
+        }
+
+        [HttpGet("{Id}")]
+        [ProducesResponseType(200, Type = typeof(ProductOriginToShowDTO))]
+        [ProducesResponseType(400)]
+        public IActionResult GetProductsByOriginId(int Id)
+        {
+            if (!ValidationsForImputs.ValidateNumber(Id))
             {
-                return BadRequest(ModelState);
+                ModelState.AddModelError(" ", "Please enter a valid Id!");
+                return StatusCode(400, ModelState);
             }
 
-            var productOriginMap = _mapper.Map<ProductOrigin>(createDTO);
+            var productType = _productOriginService.GetAllProductsByOrigin(Id);
 
-            if (!_productOriginRepository.Create(productOriginMap))
+            if (!productType.Any())
             {
-                ModelState.AddModelError("", "Something went wrong while saving");
-                return StatusCode(500, ModelState);
+                return NotFound();
             }
 
-            return Ok("Succesfully Created!");
+            return Ok(productType);
         }
 
         [HttpGet]
+        [Route("/ProductOriginPagination")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<ProductOrigin>))]
-        public IActionResult GetAllProductTypes()
+        [ResponseCache(Duration = 10)] // cache por segundo
+        [AllowAnonymous]
+        public async Task<ActionResult<List<ProductOriginToShowDTO>>> GettAllProducts([FromQuery] PaginationDTO paginationDTO)
         {
-            var productOrigins = _mapper.Map<List<ProductOrigin>>(_productOriginRepository.GetAll());
+            var queryable = _productOriginService.GetAllProductOrigin();
+            await HttpContext.InsertPaginationParametersInHeader(queryable, paginationDTO.Page, paginationDTO.RecordsPerPage);
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            return Ok(productOrigins);
+            return await _productOriginService.GetAll(paginationDTO);
         }
     }
 }

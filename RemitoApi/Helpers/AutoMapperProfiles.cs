@@ -1,32 +1,38 @@
 ﻿using AutoMapper;
 using RemitoApi.DTOs;
+using RemitoApi.DTOs.Secutiry;
 using RemitoApi.Entities;
+using RemitoApi.Models;
 
 namespace RemitoApi.Helpers
 {
     public class AutoMapperProfiles : Profile
     {
-
         public AutoMapperProfiles()
         {
             CreateMap<ProductType, ProductTypeCreateDTO>().ReverseMap();
-            
+            CreateMap<ProductType, ProductTypeToShowDTO>().ReverseMap();
             CreateMap<ProductOrigin, ProductOriginCreateDTO>().ReverseMap();
-            
-            CreateMap<CategoryType, CategoryTypeCreateDTO>().ReverseMap();
-            
+            CreateMap<ProductOrigin, ProductOriginToShowDTO>().ReverseMap();
+
+            CreateMap<Product, ProductCreateDTO>().ReverseMap();
+            CreateMap<ProductToShowDTO, Product>().ReverseMap()
+                .ForMember(dest => dest.ProductTypeName,
+                opt => opt.MapFrom(src => src.ProductType.Name)).
+                ForMember(dest => dest.ProductOriginName,
+                opt => opt.MapFrom(src => src.ProductOrigin.Name)).
+                ForMember(dest => dest.Name, opt => opt.MapFrom(c => c.Category.Name));
+
             CreateMap<Category, CategoryCreateDTO>().ReverseMap();
-            
-            CreateMap<Product,ProductCreateDTO>().ReverseMap();
-            
-            CreateMap<ProductToShowDTO,Product>().ReverseMap().
-                ForMember(dest => dest.CategoryTypeName, 
-                opt => opt.MapFrom(src => src.Category.CategoryType.Name));
-            
-            CreateMap<CategoryToShowDTO, Category>().ReverseMap().
-                ForMember(dest => dest.CategoryTypeName, opt =>
-                opt.MapFrom(src => src.CategoryType.Name));
-             
+            CreateMap<CategoryToShowDTO, Category>().ReverseMap();
+           
+            CreateMap<Items, ItemAdditionDTO>().ReverseMap();
+            CreateMap<ItemToShowDTO, Items>().ReverseMap()
+                .ForMember(dest => dest.ProductName,
+                opt => opt.MapFrom(src => src.Product.ProductName));
+
+            CreateMap<DeliveryNote, DeliveryNoteCreateDTO>().ReverseMap();
+            CreateMap<DeliveryNoteCloseDTO, DeliveryNote>().ReverseMap();
         }
     }
 }

@@ -37,6 +37,7 @@ C:\Users\mides\OneDrive\Documentos\PorMiCuenta\RemitoApi C#\RemitoApi\RemitoApi\
 C:\Users\mides\OneDrive\Documentos\PorMiCuenta\RemitoApi C#\RemitoApi\RemitoApi\bin\Debug\net6.0\Microsoft.OpenApi.dll
 C:\Users\mides\OneDrive\Documentos\PorMiCuenta\RemitoApi C#\RemitoApi\RemitoApi\bin\Debug\net6.0\Microsoft.Web.Infrastructure.dll
 C:\Users\mides\OneDrive\Documentos\PorMiCuenta\RemitoApi C#\RemitoApi\RemitoApi\bin\Debug\net6.0\Microsoft.Win32.SystemEvents.dll
+C:\Users\mides\OneDrive\Documentos\PorMiCuenta\RemitoApi C#\RemitoApi\RemitoApi\bin\Debug\net6.0\Newtonsoft.Json.dll
 C:\Users\mides\OneDrive\Documentos\PorMiCuenta\RemitoApi C#\RemitoApi\RemitoApi\bin\Debug\net6.0\Swashbuckle.AspNetCore.Swagger.dll
 C:\Users\mides\OneDrive\Documentos\PorMiCuenta\RemitoApi C#\RemitoApi\RemitoApi\bin\Debug\net6.0\Swashbuckle.AspNetCore.SwaggerGen.dll
 C:\Users\mides\OneDrive\Documentos\PorMiCuenta\RemitoApi C#\RemitoApi\RemitoApi\bin\Debug\net6.0\Swashbuckle.AspNetCore.SwaggerUI.dll

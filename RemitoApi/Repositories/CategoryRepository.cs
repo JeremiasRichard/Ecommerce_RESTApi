@@ -6,59 +6,43 @@ using System.Linq;
 
 namespace RemitoApi.Repositories
 {
-    public class CategoryRepository : ICategory
+    public class CategoryRepository : GenericRepository<Category, int>, ICategoryRepository
     {
         private readonly ApplicationDbContext _dbContext;
 
-        public CategoryRepository(ApplicationDbContext dbContext)
+        public CategoryRepository(ApplicationDbContext context) : base(context)
         {
-            _dbContext = dbContext;
+            _dbContext = context;
         }
 
-        public bool Create(Category category)
-        {
-            _dbContext.Add(category);
-            return Save();
-        }
-
-        public bool Exist(int id)
-        {
-            return _dbContext.Categories.Any(c => c.Id == id);
-        }
-
-        public ICollection<Category> GetAll()
+        public override IQueryable<Category> GetAll()
         {
             return _dbContext.Categories
-         .Include(c => c.CategoryType)
-         .Include(c => c.Products)
-         .ThenInclude(po => po.ProductType)
-         .Include(cx => cx.Products)
-         .ThenInclude(pcx => pcx.ProductOrigin)
-         .ToList();
-
+            .Include(c => c.Products)
+            .ThenInclude(po => po.ProductType)
+            .Include(cx => cx.Products)
+            .ThenInclude(pcx => pcx.ProductOrigin)
+            .AsQueryable();
         }
 
-        public Category GetById(int id)
+        public override Category GetById(int id)
         {
-            return _dbContext.Categories.Where(x => x.Id == id).FirstOrDefault();
+            return _dbContext.Categories.Where(x => x.Id == id)
+            .Include(c => c.Products)
+            .ThenInclude(po => po.ProductType)
+            .Include(cx => cx.Products)
+            .ThenInclude(pcx => pcx.ProductOrigin).
+            FirstOrDefault();
         }
 
-        public bool Remove(Category category)
+        public override bool Exist(int id)
         {
-            _dbContext.Remove(category);
-            return Save();
+            return _dbContext.Categories.Any(x => x.Id == id);
         }
 
-        public bool Save()
+        public Category GetByName(string name)
         {
-            var saved = _dbContext.SaveChanges();
-            return saved > 0;
-        }
-
-        public bool Update(Category category)
-        {
-            _dbContext.Update(category);
-            return Save();
+            return _dbContext.Categories.Where(x => x.Name.Equals(name)).FirstOrDefault();
         }
     }
 }
